@@ -117,4 +117,43 @@ class biKMeans(object):
             centList.append(bestNewCents[1, :].tolist())
             self.clusterAssment[np.nonzero(self.clusterAssment[:, 0] == bestCentToSplit)[0], :] = bestClustAss
         self.labels = self.clusterAssment[:, 0]
-        self.sse = sum(self.clusterAs
+        self.sse = sum(self.clusterAssment[:, 1])
+        self.centroids = np.asarray(centList)
+
+def visualization(k, dataSet, dataLabel, cents, labels, sse, lowestsse):   # 画出聚类结果
+    # 每一类用一种颜色
+    # colors = ['pink', 'blue', 'brown', 'cyan', 'darkgreen', 'darkorange', 'darkred', 'gray', 'navy', 'yellow']
+    colors = ['#FFC0CB','#0000FF','#A52A2A','#00FFFF','#006400','#FF8C00','#8B0000','#808080','#000080','#FFFF00']
+    # colors = ['b', 'g', 'r', 'k', 'c', 'm', 'y', '#e24fff', '#524C90', '#845868']
+    for i in range(k):
+        index = np.nonzero(labels == i)[0]
+        x0 = dataSet[index, 0]
+        x1 = dataSet[index, 1]
+        y_i = dataLabel[index]
+        for j in range(len(x0)):
+            plt.text(x0[j], x1[j], str(int(y_i[j])), color=colors[i], fontdict={'weight': 'bold', 'size': 9})
+        plt.scatter(cents[i, 0], cents[i, 1], marker='x', color=colors[i], linewidths=12)
+    plt.title("SSE={:.2f}".format(sse))
+    plt.axis([-30, 30, -30, 30])
+    if(sse < lowestsse):
+        plt.savefig("lowestsee.png")
+    # plt.ion()
+    # plt.pause(0.5)
+    # plt.close()
+
+def main():
+    lowestsse = np.inf
+    for _ in range(1):
+        print(_)
+        dataSet, dataLabel = pickle.load(open('data.pkl', 'rb'), encoding='latin1')
+        k = 10
+        clf = biKMeans(k)
+        clf.fit(dataSet)
+        cents = clf.centroids
+        labels = clf.labels
+        sse = clf.sse
+        visualization(k, dataSet, dataLabel, cents, labels, sse, lowestsse)
+        if(sse < lowestsse):
+            lowestsse = sse
+if __name__ == '__main__':
+    main()
